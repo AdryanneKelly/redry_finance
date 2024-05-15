@@ -18,17 +18,20 @@ class GeneralBalanceResource extends Resource
     protected static ?string $model = GeneralBalance::class;
 
     protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
+    protected static ?string $modelLabel = 'Saldo geral';
+    protected static ?string $pluralModelLabel = 'Saldos gerais';
 
     public static function form(Form $form): Form
     {
         return $form
             ->schema([
-                Forms\Components\TextInput::make('user_id')
-                    ->required()
-                    ->numeric(),
-                Forms\Components\DatePicker::make('related_month')
+                Forms\Components\DatePicker::make('related_month')->label('Mês referente')
+                    ->native(false)
+                    ->displayFormat('F/Y')
                     ->required(),
                 Forms\Components\TextInput::make('balance')
+                    ->label('Saldo')
+                    ->prefix('R$')
                     ->required()
                     ->numeric()
                     ->default(0.00),
@@ -39,14 +42,13 @@ class GeneralBalanceResource extends Resource
     {
         return $table
             ->columns([
-                Tables\Columns\TextColumn::make('user_id')
-                    ->numeric()
-                    ->sortable(),
                 Tables\Columns\TextColumn::make('related_month')
-                    ->date()
+                    ->label('Mês referente')
+                    ->date('F/Y')
                     ->sortable(),
                 Tables\Columns\TextColumn::make('balance')
-                    ->numeric()
+                    ->label('Saldo')
+                    ->money('brl')
                     ->sortable(),
                 Tables\Columns\TextColumn::make('created_at')
                     ->dateTime()
@@ -68,7 +70,9 @@ class GeneralBalanceResource extends Resource
                 Tables\Actions\BulkActionGroup::make([
                     Tables\Actions\DeleteBulkAction::make(),
                 ]),
-            ]);
+            ])->modifyQueryUsing(function (Builder $query) {
+                $query->where('user_id', auth()->id());
+            });
     }
 
     public static function getRelations(): array

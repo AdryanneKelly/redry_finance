@@ -9,7 +9,7 @@ class RecurringBill extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['user_id', 'category_id', 'amount', 'description', 'start_date', 'end_date', 'frequency'];
+    protected $fillable = ['user_id', 'category_id', 'type', 'value', 'billing_date', 'is_active'];
 
     public function category()
     {

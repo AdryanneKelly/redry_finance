@@ -18,7 +18,7 @@ return new class extends Migration
             $table->string('type');
             $table->decimal('value', 15, 2);
             $table->boolean('is_active')->default(true);
-            $table->date('billing date');
+            $table->date('billing_date');
             $table->timestamps();
         });
     }
