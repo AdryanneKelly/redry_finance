@@ -8,4 +8,11 @@ use Illuminate\Database\Eloquent\Model;
 class GeneralBalance extends Model
 {
     use HasFactory;
+
+    protected $fillable = ['user_id', 'related_month', 'balance'];
+
+    public function user()
+    {
+        return $this->belongsTo(User::class);
+    }
 }
