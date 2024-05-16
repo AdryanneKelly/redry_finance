@@ -48,6 +48,7 @@ class VariantBillResource extends Resource
                 Forms\Components\DatePicker::make('purchase_date')
                     ->label('Data da compra')
                     ->native(false)
+                    ->displayFormat('d/m/Y')
                     ->required(),
             ]);
     }
@@ -56,12 +57,13 @@ class VariantBillResource extends Resource
     {
         return $table
             ->columns([
-                Tables\Columns\TextColumn::make('category.name')
-                    ->label('Categoria')
-                    ->sortable(),
                 Tables\Columns\TextColumn::make('title')
                     ->label('Título')
                     ->searchable(),
+                Tables\Columns\TextColumn::make('category.name')
+                    ->label('Categoria')
+                    ->badge()
+                    ->sortable(),
                 Tables\Columns\TextColumn::make('value')
                     ->money('BRL')
                     ->label('Valor')
@@ -82,7 +84,9 @@ class VariantBillResource extends Resource
                 Tables\Actions\BulkActionGroup::make([
                     Tables\Actions\DeleteBulkAction::make(),
                 ]),
-            ]);
+            ])->modifyQueryUsing(function (Builder $query) {
+                $query->where('user_id', auth()->id());
+            });
     }
 
     public static function getRelations(): array

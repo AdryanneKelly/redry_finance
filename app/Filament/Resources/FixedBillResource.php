@@ -7,6 +7,7 @@ use App\Filament\Resources\FixedBillResource\RelationManagers;
 use App\Models\FixedBill;
 use Filament\Forms;
 use Filament\Forms\Components\DatePicker;
+use Filament\Forms\Components\Placeholder;
 use Filament\Forms\Components\Repeater;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
@@ -63,7 +64,7 @@ class FixedBillResource extends Resource
                             $repeaterItems = $get('parcelsItems');
                             $totalValue =  $get('total_value');
                             for ($i = 1; $i <= $state; $i++) {
-                                array_push($repeaterItems, ['parcel_number' => $i, 'value' => $totalValue / $state]);
+                                array_push($repeaterItems, ['parcel_number' => $i, 'value' => $totalValue / $state, 'is_paid' => false]);
                             }
                             $set('parcelsItems', $repeaterItems);
                         }
@@ -83,12 +84,12 @@ class FixedBillResource extends Resource
                             ->required()
                             ->numeric(),
                         DatePicker::make('due_date')
-                            ->native(false)
-                            ->label('Data de vencimento')
-                            ->required(),
+                            ->required()
+                            ->live()
+                            ->label('Data de vencimento'),
                         Toggle::make('is_paid')
-                            ->label('Pago')
-                    ])->columnSpanFull()->columns(2),
+                            ->label('Pago'),
+                    ])->columnSpanFull()->columns(2)->grid(),
             ]);
     }
 

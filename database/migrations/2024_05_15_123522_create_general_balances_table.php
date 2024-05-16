@@ -16,6 +16,11 @@ return new class extends Migration
             $table->foreignId('user_id')->constrained()->cascadeOnDelete();
             $table->date('related_month');
             $table->decimal('balance', 15, 2)->default(0);
+            $table->decimal('fixed_bills_total', 15, 2)->default(0);
+            $table->decimal('recurring_bills_total', 15, 2)->default(0);
+            $table->decimal('variant_bills_total', 15, 2)->default(0);
+            $table->decimal('total_bills', 15, 2)->default(0);
+            $table->decimal('available_balance', 15, 2)->default(0);
             $table->timestamps();
         });
     }
