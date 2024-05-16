@@ -22,6 +22,7 @@ use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
+use Illuminate\Support\Facades\DB;
 
 class GeneralBalanceResource extends Resource
 {
@@ -59,6 +60,7 @@ class GeneralBalanceResource extends Resource
                     ->label('Total de contas fixas')
                     ->prefix('R$')
                     ->numeric()
+                    ->lazy()
                     ->readOnly()
                     ->default(0.00),
                 TextInput::make('recurring_bills_total')
@@ -114,6 +116,15 @@ class GeneralBalanceResource extends Resource
 
                         $variant_total = static::variantBillTotal();
                         $set('variant_bills_total', $variant_total);
+
+                        $fixed_total = static::fixedBillsTotal();
+                        $set('fixed_bills_total', $fixed_total);
+
+                        $total_bills = $recurring + $variant_total + $fixed_total;
+                        $set('total_bills', $total_bills);
+
+                        $available_balance = $get('balance') - $total_bills;
+                        $set('available_balance', $available_balance);
                     }),
             ]);
     }
@@ -195,5 +206,24 @@ class GeneralBalanceResource extends Resource
         }
 
         return $variant_total;
+    }
+
+    public static function fixedBillsTotal()
+    {
+        $fixedBills = DB::table('fixed_bill_items')
+            ->join('fixed_bills', 'fixed_bill_items.fixed_bill_id', '=', 'fixed_bills.id')
+            ->where('fixed_bills.user_id', auth()->id())
+            ->whereBetween('fixed_bill_items.due_date', [
+                now()->startOfMonth(),
+                now()->endOfMonth(),
+            ])
+            ->get();
+        $fixed_total = 0;
+
+        foreach ($fixedBills as $bill) {
+            $fixed_total += $bill->value;
+        }
+
+        return $fixed_total;
     }
 }
