@@ -20,6 +20,11 @@ class RecurringBillResource extends Resource
     protected static ?string $modelLabel = 'Contas recorrentes';
     protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
 
+
+    protected static ?string $navigationGroup = 'Contas';
+
+
+
     public static function form(Form $form): Form
     {
         return $form
