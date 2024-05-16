@@ -2,22 +2,22 @@
 
 namespace App\Filament\Resources;
 
-use App\Filament\Resources\RecurringBillResource\Pages;
-use App\Filament\Resources\RecurringBillResource\RelationManagers;
-use App\Models\RecurringBill;
+use App\Filament\Resources\VariantBillResource\Pages;
+use App\Filament\Resources\VariantBillResource\RelationManagers;
+use App\Models\VariantBill;
 use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
-use Filament\Tables\Columns\Summarizers\Sum;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 
-class RecurringBillResource extends Resource
+class VariantBillResource extends Resource
 {
-    protected static ?string $model = RecurringBill::class;
-    protected static ?string $modelLabel = 'Contas recorrentes';
+    protected static ?string $model = VariantBill::class;
+
+    protected static ?string $modelLabel = 'Contas variantes';
     protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
     protected static ?string $navigationGroup = 'Contas';
 
@@ -26,33 +26,28 @@ class RecurringBillResource extends Resource
         return $form
             ->schema([
                 Forms\Components\Select::make('category_id')
-                    ->label('Categoria')
                     ->relationship('category', 'name')
-                    ->required()
+                    ->label('Categoria')
                     ->searchable()
                     ->preload()
+                    ->required()
                     ->createOptionForm([
                         Forms\Components\TextInput::make('name')
                             ->label('Nome')
                             ->required(),
                     ]),
-                Forms\Components\TextInput::make('type')
-                    ->label('Tipo')
+                Forms\Components\TextInput::make('title')
+                    ->label('Título')
                     ->required()
                     ->maxLength(255),
                 Forms\Components\TextInput::make('value')
                     ->label('Valor')
-                    ->prefix('R$')
                     ->required()
+                    ->prefix('R$')
                     ->numeric(),
-                Forms\Components\DatePicker::make('billing_date')
-                    ->label('Data de cobrança')
+                Forms\Components\DatePicker::make('purchase_date')
+                    ->label('Data da compra')
                     ->native(false)
-                    ->displayFormat('d/m/Y')
-                    ->required(),
-                Forms\Components\Toggle::make('is_active')
-                    ->label('Ativo')
-                    ->default(true)
                     ->required(),
             ]);
     }
@@ -61,25 +56,19 @@ class RecurringBillResource extends Resource
     {
         return $table
             ->columns([
-                Tables\Columns\TextColumn::make('type')
-                    ->label('Tipo')
-                    ->searchable(),
                 Tables\Columns\TextColumn::make('category.name')
                     ->label('Categoria')
-                    ->badge()
-                    ->numeric()
                     ->sortable(),
+                Tables\Columns\TextColumn::make('title')
+                    ->label('Título')
+                    ->searchable(),
                 Tables\Columns\TextColumn::make('value')
+                    ->money('BRL')
                     ->label('Valor')
-                    ->money('brl')
-                    ->summarize(Sum::make()->money('brl'))
                     ->sortable(),
-                Tables\Columns\IconColumn::make('is_active')
-                    ->label('Ativo')
-                    ->boolean(),
-                Tables\Columns\TextColumn::make('billing_date')
-                    ->label('Data de cobrança')
+                Tables\Columns\TextColumn::make('purchase_date')
                     ->date('d/m/Y')
+                    ->label('Data da compra')
                     ->sortable(),
             ])
             ->filters([
@@ -93,9 +82,7 @@ class RecurringBillResource extends Resource
                 Tables\Actions\BulkActionGroup::make([
                     Tables\Actions\DeleteBulkAction::make(),
                 ]),
-            ])->modifyQueryUsing(function (Builder $query) {
-                $query->where('user_id', auth()->id());
-            });
+            ]);
     }
 
     public static function getRelations(): array
@@ -108,10 +95,10 @@ class RecurringBillResource extends Resource
     public static function getPages(): array
     {
         return [
-            'index' => Pages\ListRecurringBills::route('/'),
-            'create' => Pages\CreateRecurringBill::route('/create'),
-            'view' => Pages\ViewRecurringBill::route('/{record}'),
-            'edit' => Pages\EditRecurringBill::route('/{record}/edit'),
+            'index' => Pages\ListVariantBills::route('/'),
+            'create' => Pages\CreateVariantBill::route('/create'),
+            'view' => Pages\ViewVariantBill::route('/{record}'),
+            'edit' => Pages\EditVariantBill::route('/{record}/edit'),
         ];
     }
 }
